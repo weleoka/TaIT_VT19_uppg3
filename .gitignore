@@ -1,5 +1,6 @@
 iju
 ij
+bin/
 .idea/
 coveragereport/
 jacoco.exec
