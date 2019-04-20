@@ -2,17 +2,23 @@ package ltu;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 public class CalendarFactoryTest {
 
     @Test
     public void getCalendarDefault() {
-        assertEquals(CalendarFactory.getCalendar().getClass(), ICalendar.class);
+        assertThat(CalendarFactory.getCalendar(), instanceOf(ICalendar.class));
     }
 
+    @Test
+    public void getCalendarGoodCalendar() {
+        assertThat(CalendarFactory.getCalendar("ltu.CalendarImpl"), instanceOf(ICalendar.class));
+    }
 
     @Test
-    public void getCalendar1() {
+    public void getCalendarBadCalendar() {
+        assertNull(CalendarFactory.getCalendar("badClassName"));
     }
 }
