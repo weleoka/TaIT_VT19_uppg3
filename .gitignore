@@ -4,3 +4,4 @@ bin/
 .idea/
 coveragereport/
 jacoco.exec
+.attach_pid*
