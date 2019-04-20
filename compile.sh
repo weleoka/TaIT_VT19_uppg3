@@ -1,5 +1,8 @@
+#!/bin/bash
 echo "Compiling code..."
-mkdir -p ./bin
-javac -d ./bin -cp ./src ./src/ltu/Main.java ./src/ltu/*.java
+mkdir -p ./bin/production
+javac -g -d ./bin/production -cp ./src ./src/main/ltu/*.java
+
 echo "Compiling tests..."
-javac -d ./bin -cp ./lib/org.junit4-4.3.1.jar:./src ./src/tests/ltu/*.java
+mkdir -p ./bin/tests
+javac -g -d ./bin/tests -cp ./lib/junit-4.12.jar:./lib/hamcrest-core-1.3.jar:./src/main ./src/tests/ltu/*.java

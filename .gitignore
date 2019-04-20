@@ -3,5 +3,6 @@ ij
 bin/
 .idea/
 coveragereport/
+jacocoreporthtml/
 jacoco.exec
 .attach_pid*
