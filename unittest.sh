@@ -6,4 +6,4 @@ java -javaagent:./lib/jacocoagent.jar -cp ./lib/junit-4.12.jar:./lib/hamcrest-co
 
 echo "Generating report..."
 #java -jar ./lib/org.jacoco.examples-0.7.7.jar .
-java -jar lib/jacococli.jar report jacoco.exec --classfiles ./bin/tests --sourcefiles ./src/tests --html ./jacocoreporthtml
+java -jar lib/jacococli.jar report jacoco.exec --classfiles ./bin/tests --sourcefiles ./src/tests --sourcefiles ./src/main --html ./jacocoreporthtml
