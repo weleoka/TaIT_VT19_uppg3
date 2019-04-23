@@ -23,7 +23,9 @@ echo "Generating report..."
 java \
 -jar lib/jacococli.jar report jacoco.exec \
 --classfiles ./bin/test \
---sourcefiles "./src/test/ltu:./src/main/ltu" \
+--sourcefiles ./src/main \
+--sourcefiles ./src/test \
 --html ./jacocoreporthtml
 
 # java -jar ./lib/org.jacoco.examples-0.7.7.jar .
+#--sourcefiles "./src/test/ltu:./src/main/ltu"
