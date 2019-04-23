@@ -1,13 +1,13 @@
 package ltu;
 
+import static java.lang.Integer.parseInt;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Properties;
-
-import static java.lang.Integer.parseInt;
 
 public class PaymentImpl implements IPayment
 {

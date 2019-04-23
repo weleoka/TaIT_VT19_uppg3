@@ -2,6 +2,7 @@ package ltu;
 
 import junitparams.FileParameters;
 import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,25 +10,20 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Testing the PaymentImpl class is different as the methods throw IOException.
- * JUnit has different ways to handle this. See a good description at:
- * https://blog.goyello.com/2015/10/01/different-ways-of-testing-exceptions-in-java-and-junit/
+ * This class implements a parameterized test using the
+ * JUnitParams library.
  *
- * In Brief the old method is to use the standard try catch blocks for the unit tests.
- * JUnit4+ has @Test annotation and expected element. e.g. @Test(expected = IOException.class)
- *
- * todo Also it is possible for the test to throw an exception. Good or bad?
- *
- * Currently double tests are implemented one which passes the exception up and the other
- * which will catch the exception from called method in subject class.
- *
- * This test class relies on the old try catch blocks.
+ * todo Solve the delimiter issue in CSV file
+ * todo initial line problem when loading data from CSV.
  */
 // @RunWith(Parameterized.class)
 @RunWith(JUnitParamsRunner.class)
@@ -48,9 +44,7 @@ public class PaymentImplJUnitParamsTest {
      */
     private final String rules = "student100loan=7088\nstudent100subsidy=2816\nstudent50loan=3564\nstudent50subsidy=1396\nstudent0loan=0\nstudent0subsidy=0\nfulltimeIncome=85813\nparttimeIncome=128722\n";
     private Properties props;
-
-
-    private PaymentImpl paymentImpl = null;
+    private final PaymentImpl paymentImpl;
 
     private int FULL_LOAN;
     private int HALF_LOAN;
@@ -61,31 +55,15 @@ public class PaymentImplJUnitParamsTest {
     private int FULLTIME_INCOME;
     private int PARTTIME_INCOME;
 
-    public PaymentImplJUnitParamsTest() {}
+    public PaymentImplJUnitParamsTest() throws IOException {
+        cf = new CalendarFactory();
+        cal = cf.getCalendar();
 
-    // Parameterized test with constructor injection
-    private String pnr;
-    private int income;
-    private int studyPace;
-    private int completionRatio;
-
-
-
-/*
-    //public void loadData(String pnr, int income, int studyPace, int completionRatio) { }
-    private final CSVReaderImpl debugReader = new CSVReaderImpl("inputfiles/debug.csv");
-    public Collection<String[]> loadData() {
-        List<String[]> testData = debugReader.getAllLines();
-        return testData;
+        paymentImpl = new PaymentImpl(cal);
     }
-*/
 
     @Before
     public void entryPoint() throws IOException {
-        cf = new CalendarFactory();
-        cal = cf.getCalendar();
-        paymentImpl = new PaymentImpl(cal);
-
         props = new Properties();
         props.load(new StringReader(rules));
 
@@ -155,8 +133,11 @@ public class PaymentImplJUnitParamsTest {
     }
 
     @Test
-    @FileParameters("test/resources/debug.csv")
-    public void getMonthlyAmount() {
+    @Parameters({
+            "19700615-5441", "128722", "100", "50",
+            "19700322-3006", "128723", "100", "50",
+    })
+    public void getMonthlyAmount(String pnr, int income, int studyPace, int completionRatio) {
         System.out.println("PaymentImplJUnitParamsTest.getMonthlyAmount");
         System.out.printf("%s, %s, %s, %s", pnr, income, studyPace, completionRatio);
         int allowence = paymentImpl.getMonthlyAmount(pnr, income, studyPace, completionRatio);
@@ -164,8 +145,8 @@ public class PaymentImplJUnitParamsTest {
     }
 
     @Test
-    @FileParameters("test/resources/debug.csv")
-    public void getMonthlyAmountTooYoung() {
+    @FileParameters("inputfiles/debug.csv")
+    public void getMonthlyAmountTooYoung(String pnr, int income, int studyPace, int completionRatio) {
         System.out.println("PaymentImplJUnitParamsTest.getMonthlyAmountTooYoung");
         System.out.printf("%s, %s, %s, %s", pnr, income, studyPace, completionRatio);
         int allowance = paymentImpl.getMonthlyAmount("20190101-0000", income, studyPace, completionRatio);
@@ -173,13 +154,46 @@ public class PaymentImplJUnitParamsTest {
     }
 
     @Test
-    //@FileParameters("src/resources/debug.csv")
-    //@FileParameters("classpath:inputfiles/debug.csv")
-    @FileParameters("test/resources/debug.csv")
-    public void getMonthlyAmountBadCompletionRatio() throws IOException {
+    //@FileParameters("inputfiles/debug.csv")
+    @Parameters(method = "paramsFromFile")
+    public void getMonthlyAmountBadCompletionRatio(String pnr, int income, int studyPace, int completionRatio) {
         System.out.println("PaymentImplJUnitParamsTest.getMonthlyAmountBadCompletionRatio");
         System.out.printf("%s, %s, %s, %s", pnr, income, studyPace, completionRatio);
         int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyPace, 49);
         assertEquals(allowance, 0);
+    }
+
+    @Test
+    @Parameters(method = "paramsByComma")
+    public void byComma(String parameter) {
+        System.out.println("parameter: " + parameter);
+    }
+
+
+    /**
+     * Load parameters from CSV file
+     *
+     * todo Accept filename parameter. Requires the JUnitParams annotation to call with argument...
+     */
+    public List<String[]> paramsFromFile() {
+        // Can't read from CSV at runtime so disabled.
+        CSVReaderImpl debugReader = new CSVReaderImpl("test/resources/debug.csv");
+
+        return debugReader.getAllLines();
+    }
+
+    /**
+     * Workaround as JUnitParams does not support changing the delimiter.
+     */
+    public List<String> paramsByComma() {
+
+        return splitBy("hello, goodmorning|goodnight", ",");
+    }
+
+    private ArrayList<String> splitBy(String params, String splitter) {
+        // return Lists.newArrayList(params.split(splitter)); // This format requires the Guava libraries.
+        ArrayList<String> parts = new ArrayList<>(Arrays.asList(params.split(splitter)));
+
+        return parts;
     }
 }

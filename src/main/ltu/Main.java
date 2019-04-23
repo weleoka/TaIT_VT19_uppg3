@@ -1,9 +1,13 @@
 package ltu;
 
-import java.io.*;
-
 import static java.lang.Integer.parseInt;
 import static ltu.CalendarFactory.getCalendar;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main
 {

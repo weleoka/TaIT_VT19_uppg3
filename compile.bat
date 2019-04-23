@@ -1,4 +1,6 @@
 @echo off
+rem Classpath info at:
+rem https://docs.oracle.com/javase/8/docs/technotes/tools/windows/classpath.html
 set JDK_HOME=c:\PROGRA~1\Java\jdk1.8.0_45
 
 @echo "Compiling code ..."

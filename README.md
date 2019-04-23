@@ -9,13 +9,12 @@ Windows batch scripts are updated but need testing! Please let me know if things
 Linux just execute the whole thing with `./ct`, which is short for compile_and_test. Windows `ct.bat`.
 
 
-## Current situation
-When running the JUnitParams test I get the ollowing error: `java.lang.IllegalArgumentException: Cannot parse parameters. Did you use ',' or '|' as column separator? #Social Security Number;Income;Study pace;Completion ratio`
+## Parameterized tests
+The trouble with using JUnit's built in parameterized test is that it requires the method returning the Collection object of parameters to be static, which in turn means that the CSVReader can't be instantiated.
 
-And with the other JUnit4 test It seems to be 0 lines read rom the CSV.
+The solution should be to use the helper library JUnitParams but when doing that the following ocurs due to an initial line problem in the CSv file. `java.lang.IllegalArgumentException: Cannot parse parameters. Did you use ',' or '|' as column separator? #Social Security Number;Income;Study pace;Completion ratio`
 
-
-And when runnign on the commandline the folloing is happening: `./src/main/ltu/CSVReaderImpl.java:5: error: package com.opencsv does not exist`. This is perhaps caused by a strange format to the jar which the IDE can handle but javac on its own does not.
+The good summary of the JUnit4 and JUnitPArams discussion is at [this link](https://www.testwithspring.com/lesson/writing-parameterized-tests-with-junit-4/)
 
 ## Empty Unit tests
 Not counting empty unit tests towards overall overage. If the test method is empty then why should that count towards coverage in test coverage reports? They are actually not testing anything!

@@ -20,6 +20,7 @@ public class CSVReaderImpl {
         parser =
                 new CSVParserBuilder()
                         .withIgnoreQuotations(true)
+                        .withSeparator(';')
                         .build();
         reader =
                 new CSVReaderBuilder(new StringReader(csvFile))

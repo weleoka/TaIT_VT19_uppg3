@@ -2,6 +2,7 @@ package ltu;
 
 public class CalendarFactory
 {
+
     private static ICalendar calendar = null;
 
     public static ICalendar getCalendar()
