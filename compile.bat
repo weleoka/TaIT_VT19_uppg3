@@ -13,5 +13,6 @@ rem set JUNIT=lib\org.junit4-4.3.1.jar
 set JUNIT=lib\junit-4.12.jar
 
 set HAMCREST=lib\hamcrest-core-1.3.jar
+set OPENCSV=lib\opencsv-4.5.jar
 
-%JDK_HOME%/bin/javac.exe -g -d bin/tests -cp %JUNIT%;%HAMCREST%;src/main src/tests/ltu/*.java
+%JDK_HOME%/bin/javac.exe -g -d bin/tests -cp %JUNIT%;%HAMCREST%;%OPENCSV%;src/main src/tests/ltu/*.java

@@ -8,6 +8,15 @@ Windows batch scripts are updated but need testing! Please let me know if things
 
 Linux just execute the whole thing with `./ct`, which is short for compile_and_test. Windows `ct.bat`.
 
+
+## Current situation
+When running the JUnitParams test I get the ollowing error: `java.lang.IllegalArgumentException: Cannot parse parameters. Did you use ',' or '|' as column separator? #Social Security Number;Income;Study pace;Completion ratio`
+
+And with the other JUnit4 test It seems to be 0 lines read rom the CSV.
+
+
+And when runnign on the commandline the folloing is happening: `./src/main/ltu/CSVReaderImpl.java:5: error: package com.opencsv does not exist`. This is perhaps caused by a strange format to the jar which the IDE can handle but javac on its own does not.
+
 ## Empty Unit tests
 Not counting empty unit tests towards overall overage. If the test method is empty then why should that count towards coverage in test coverage reports? They are actually not testing anything!
 
@@ -18,6 +27,25 @@ Another method which I tried was to comment out all the @Test annotations, but t
 So far there is only one relatively satisfactory solution to this problem; if there is a test class then it has to have at least one test method. Jococo does not understand JUnits @Ignore annotation, which is a pitty. But if the test is not implemented then you can do this in each test block `throw new RuntimeException("implement me");`. That's quite a good compromise.
 
 
+## Parameterized test class
+JUnit has the parameterized test where fields or constructor injection can be used to run tests using a data set. What is not clear is how individual items in the collection are cast/parsed to the required data types.
+
+There is a good helper library, that seems to then have been incorporated into JUnit5 called JUnitParams. It allows reading of parameters directly in to unit tests, and reducing boilerplate code for test classes by making it unnecessary to inject fields or constructor with params, instead annotating each method. It should also make it possible to have multiple test methods with different parameters withing the same class, whereas the JUnit4 is basically one method one class if it's parameterized.
+
+Again the question of how types are cast is not clear from JUnitParams. It's also hard to correctly skip an initial line in the CSV file for example.
+
+## Exceptions in tests
+Testing the PaymentImpl class is different as the methods throw IOException.
+
+JUnit has different ways to handle this. See a good description at:
+https://blog.goyello.com/2015/10/01/different-ways-of-testing-exceptions-in-java-and-junit/
+
+ In Brief the old method is to use the standard try catch blocks for the unit tests.
+
+JUnit4+ has @Test annotation and expected element. e.g. @Test(expected = IOException.class)
+
+ todo Also it is possible for the test to throw an exception. Good or bad?
+ Currently double tests are implemented one which passes the exception up and the other which will catch the exception from called method in subject class.This test class relies on the old try catch blocks.
 
 ## Requirements
 
