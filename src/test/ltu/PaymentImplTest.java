@@ -85,10 +85,9 @@ public class PaymentImplTest {
     @Parameters(name = "{index}: Student - {0}, income: {1}, studyPace={2}, completionRatio={3}")
     public static Collection<Object[]> loadData() {
         return Arrays.asList(new Object[][] {
-                {"19700615-5441", 128722, 100, 50},
-                {"19700322-3006", 128722, 100, 100}
+                {"19700615-5441", 85813, 100, 50},
+                {"19700322-3006", 85813, 100, 100}
         });
-
         // This is the issue here that I can't load values for parameterized tests at runtime.
         //List<String[]> testData = debugReader.getAllLines();
         //return testData;
@@ -110,13 +109,11 @@ public class PaymentImplTest {
     }
 
     @Test
-    @Ignore
     public void instantiateWithCalendar() throws IOException {
         PaymentImpl paymentImpl = new PaymentImpl(cal);
     }
 
     @Test
-    @Ignore
     public void instantiateWithCalendarAndCatchException() {
 
         try {
@@ -128,13 +125,11 @@ public class PaymentImplTest {
     }
 
     @Test
-    @Ignore
     public void instantiateWithCalendarAndGoodRules() throws IOException {
         PaymentImpl payment = new PaymentImpl(cal, rules);
     }
 
     @Test
-    @Ignore
     public void instantiateWithCalendarAndGoodRulesAndCatchException() {
         String rules = "student100loan=7088\nstudent100subsidy=2816\nstudent50loan=3564\nstudent50subsidy=1396\nstudent0loan=0\nstudent0subsidy=0\nfulltimeIncome=85813\nparttimeIncome=128722\n";
 
@@ -147,7 +142,6 @@ public class PaymentImplTest {
     }
 
     @Test
-    @Ignore
     public void instantiateWithCalendarAndBadRules() {
         String rules = "xyz!!!";
 
@@ -161,12 +155,6 @@ public class PaymentImplTest {
         } catch (IOException e) {
             Assert.fail("This should not throw an IOException.");
         }
-    }
-
-    @Test
-    @Ignore
-    public void getNextPaymentDay() {
-        
     }
 
     @Test
@@ -184,8 +172,33 @@ public class PaymentImplTest {
     @Test
     public void getMonthlyAmountBadCompletionRatio() {
         int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyPace, 49);
-        assertEquals(allowance, ZERO_SUBSIDY + ZERO_LOAN);
+        assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
+
+    @Test
+    public void getMonthlyAmountFulltimeStudyWithHighIncome() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, PARTTIME_INCOME, 100, 100);
+        assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
+    }
+
+    @Test
+    public void partTimeStudiesNoIncome() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, 0, 99, 100);
+        assertThat(allowance, is(HALF_SUBSIDY + HALF_LOAN));
+    }
+
+    @Test
+    public void fullTimeStudiesBadCompletionNoIncome() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, 0, 100, 49);
+        assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
+    }
+
+    @Test
+    public void getNextPaymentDay() {
+
+
+    }
+
 }
 /*
 

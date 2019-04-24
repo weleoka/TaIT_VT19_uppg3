@@ -27,11 +27,11 @@ So far there is only one relatively satisfactory solution to this problem; if th
 
 
 ## Parameterized test class
-JUnit has the parameterized test where fields or constructor injection can be used to run tests using a data set. What is not clear is how individual items in the collection are cast/parsed to the required data types.
+JUnit has the parameterized test where fields or constructor injection can be used to run tests using a data set. What is not clear is how individual items in the collection are cast/parsed to the required data types, although it does work!
 
 There is a good helper library, that seems to then have been incorporated into JUnit5 called JUnitParams. It allows reading of parameters directly in to unit tests, and reducing boilerplate code for test classes by making it unnecessary to inject fields or constructor with params, instead annotating each method. It should also make it possible to have multiple test methods with different parameters withing the same class, whereas the JUnit4 is basically one method one class if it's parameterized.
 
-Again the question of how types are cast is not clear from JUnitParams. It's also hard to correctly skip an initial line in the CSV file for example.
+Again the question of how types are cast is not clear from JUnitParams. It's also hard to correctly skip an initial line in the CSV file, or have custom delimiters, for example.
 
 ## Exceptions in tests
 Testing the PaymentImpl class is different as the methods throw IOException.
