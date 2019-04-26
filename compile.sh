@@ -26,4 +26,8 @@ javac -g -d ./bin/test \
 ./lib/opencsv-4.5.jar" \
 ./src/test/ltu/*.java
 
+
+#./src/test/ltu/PaymentImplJUnitParamsTest.java \
+#./src/test/ltu/CalendarImplStub.java
+
 # javac -d ./bin -cp ./lib/org.junit4-4.3.1.jar:./src/main ./src/test/ltu/PaymentImplTest.java

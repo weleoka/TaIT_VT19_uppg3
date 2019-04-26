@@ -71,12 +71,8 @@ public class PaymentImplJUnitParamsTest {
     public PaymentImplJUnitParamsTest() throws IOException {
         cf = new CalendarFactory();
         cal = cf.getCalendar();
-
         paymentImpl = new PaymentImpl(cal);
-    }
 
-    @Before
-    public void entryPoint() throws IOException {
         props = new Properties();
         props.load(new StringReader(rules));
 
@@ -88,6 +84,11 @@ public class PaymentImplJUnitParamsTest {
         ZERO_SUBSIDY = parseInt((String) props.get("student0subsidy"));
         FULLTIME_INCOME = parseInt((String) props.get("fulltimeIncome"));
         PARTTIME_INCOME = parseInt((String) props.get("parttimeIncome"));
+    }
+
+    @Before
+    public void entryPoint() throws IOException {
+
     }
 
 
@@ -159,20 +160,27 @@ public class PaymentImplJUnitParamsTest {
 
     /* ================ Subsidy and Loan Testing =============== */
     @Test
-    @Parameters(method="parametersForGeneral")
-    public void getMonthlyAmount(String pnr, int income, int studyRate, int completionRatio) {
+    @Parameters(method="parametersForMonthlyAmountFullTime")
+    public void monthlyAmountFullTime(String pnr, int income, int studyRate, int completionRatio) {
         int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
         assertThat(allowance, is(FULL_SUBSIDY + FULL_LOAN));
+    }
+
+    @Test
+    @Parameters(method="parametersForMonthlyAmountPartTime")
+    public void monthlyAmountPartTime(String pnr, int income, int studyRate, int completionRatio) {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
+        assertThat(allowance, is(HALF_SUBSIDY + HALF_LOAN));
     }
 
 
     /* === bad input data related = */
     @Test
-    @Parameters(method="parametersForGeneral")
+    @Parameters(method="parametersForMonthlyAmountNullPnr")
     public void getMonthlyAmountNullPnr(String pnr, int income, int studyRate, int completionRatio) {
 
         try {
-            int allowance = paymentImpl.getMonthlyAmount(null, income, studyRate, completionRatio);
+            int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
 
         } catch (IllegalArgumentException e) {
             //Test has passed because IllegalArgumentException is thrown.
@@ -182,11 +190,11 @@ public class PaymentImplJUnitParamsTest {
     }
 
     @Test
-    @Parameters(method="parametersForGeneral")
+    @Parameters(method="parametersForMonthlyAmountLongPnr")
     public void getMonthlyAmountLongPnr(String pnr, int income, int studyRate, int completionRatio) {
 
         try {
-            int allowance = paymentImpl.getMonthlyAmount("12345678-99990", income, studyRate, completionRatio);
+            int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
 
         } catch (IllegalArgumentException e) {
             //Test has passed because IllegalArgumentException is thrown.
@@ -212,32 +220,32 @@ public class PaymentImplJUnitParamsTest {
     }
 
     @Test
-    @Parameters(method="parametersForTooOldForLoan")
+    @Parameters(method="parametersForTooOldForLoanFullTimeStudyRate")
     public void tooOldForLoanWithFullTimeStudies(String pnr, int income, int studyRate, int completionRatio) {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, income, 100, completionRatio);
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
         assertThat(allowance, is(FULL_SUBSIDY + ZERO_LOAN));
     }
 
     @Test
-    @Parameters(method="parametersForTooOldForLoan")
+    @Parameters(method="parametersForTooOldForLoanPartTimeStudyRate")
     public void tooOldForLoanWithPartTimeStudies(String pnr, int income, int studyRate, int completionRatio) {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, income, 50, completionRatio);
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
         assertThat(allowance, is(HALF_SUBSIDY + ZERO_LOAN));
     }
 
 
     /* === income related === */
     @Test
-    @Parameters(method="parametersForGeneral")
+    @Parameters(method="parametersForPartTimeIncomeWithFullTimeStudy")
     public void partTimeIncomeWithFullTimeStudy(String pnr, int income, int studyRate, int completionRatio) {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, PARTTIME_INCOME, 100, completionRatio);
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
     @Test
     @Parameters(method="parametersForTooHighIncome")
     public void tooHighIncome(String pnr, int income, int studyRate, int completionRatio) {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, PARTTIME_INCOME + 1, studyRate, completionRatio);
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
@@ -262,7 +270,7 @@ public class PaymentImplJUnitParamsTest {
     @Test
     @Parameters(method="parametersForBadCompletionRatio")
     public void tooLowCompletionRatio(String pnr, int income, int studyRate, int completionRatio) {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, 49);
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyRate, completionRatio);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
@@ -272,12 +280,30 @@ public class PaymentImplJUnitParamsTest {
     // If we do not specify anything in the @Parameters annotation, JUnitParams tries to
     // load a test data provider method based on the test method name. The method name
     // is constructed as “parametersFor”+ <test method name>.
-    private Object[] parametersForGeneral () {
+    private Object[] parametersForMonthlyAmountFullTime () {
         return new Object[] {
             new Object[] {"19880615-5441", 0, 100, 100},
             new Object[] {"19880322-3006", 1, 100, 50},
-            new Object[] {"19880322-3006", FULLTIME_INCOME, 100, 99},
-            new Object[] {"19880322-3006", 0, 100, 50}
+        };
+    }
+
+    private Object[] parametersForMonthlyAmountPartTime () {
+        return new Object[] {
+            new Object[] {"19880615-5441", 0, 90, 100},
+            new Object[] {"19880322-3006", 1, 50, 50},
+        };
+    }
+
+    private Object[] parametersForMonthlyAmountNullPnr () {
+        return new Object[] {
+            new Object[] {null, 0, 100, 100},
+        };
+    }
+
+    private Object[] parametersForMonthlyAmountLongPnr () {
+        return new Object[] {
+            new Object[] {"19880615-544199", 0, 100, 100},
+            new Object[] {"19880322-300699", 1, 100, 50},
         };
     }
 
@@ -304,7 +330,7 @@ public class PaymentImplJUnitParamsTest {
         };
     }
 
-    private Object[] parametersForTooOldForLoan () {
+    private Object[] parametersForTooOldForLoanFullTimeStudyRate () {
         return new Object[] {
             new Object[] {"19700615-5441", 1, 100, 100},
             new Object[] {"19700322-3006", FULLTIME_INCOME, 100, 100},
@@ -313,11 +339,28 @@ public class PaymentImplJUnitParamsTest {
         };
     }
 
+    private Object[] parametersForTooOldForLoanPartTimeStudyRate () {
+        return new Object[] {
+            new Object[] {"19700615-5441", 1, 75, 100},
+            new Object[] {"19700322-3006", PARTTIME_INCOME, 50, 100},
+            new Object[] {"19700322-3006", 0, 90, 100},
+            new Object[] {"19700322-3006", 0, 50, 100}
+        };
+    }
+
     private Object[] parametersForTooHighIncome () {
         return new Object[] {
             new Object[] {"19880322-3006", PARTTIME_INCOME + 1, 99, 100},
             new Object[] {"19880322-3006", PARTTIME_INCOME + 1, 50, 100},
             new Object[] {"19880322-3006", FULLTIME_INCOME + 1, 100, 100}
+        };
+    }
+
+    private Object[] parametersForPartTimeIncomeWithFullTimeStudy () {
+        return new Object[] {
+            new Object[] {"19880322-3006", PARTTIME_INCOME, 100, 50},
+            new Object[] {"19880322-3006", PARTTIME_INCOME, 100, 100},
+            new Object[] {"19880322-3006", PARTTIME_INCOME, 100, 99}
         };
     }
 
