@@ -1,11 +1,8 @@
 package ltu;
 
 import org.junit.Assert;
-import org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -14,14 +11,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test class implementing the standard JUnit4 Params
@@ -81,12 +75,12 @@ public class PaymentImplTest {
         this.completionRatio = completionRatio;
     }
 
-    //@Parameters(name = "Run {index}: pnr={0}, income={1}, studyPace={2}, completionRatio={3}")
     @Parameters(name = "{index}: Student - {0}, income: {1}, studyPace={2}, completionRatio={3}")
     public static Collection<Object[]> loadData() {
         return Arrays.asList(new Object[][] {
                 {"19700615-5441", 85813, 100, 50},
-                {"19700322-3006", 85813, 100, 100}
+                {"19700322-3006", 85813, 100, 100},
+                {"19700322-3006", 128722, 100, 100}
         });
         // This is the issue here that I can't load values for parameterized tests at runtime.
         //List<String[]> testData = debugReader.getAllLines();
@@ -108,6 +102,8 @@ public class PaymentImplTest {
         PARTTIME_INCOME = parseInt((String) props.get("parttimeIncome"));
     }
 
+
+    /* ================== Constructor Testing ================== */
     @Test
     public void instantiateWithCalendar() throws IOException {
         PaymentImpl paymentImpl = new PaymentImpl(cal);
@@ -157,57 +153,55 @@ public class PaymentImplTest {
         }
     }
 
+
+    /* ================ Payment amounts =============== */
     @Test
-    public void getMonthlyAmount() {
+    public void monthlyAmount() {
         int allowence = paymentImpl.getMonthlyAmount(pnr, income, studyPace, completionRatio);
         assertThat(allowence, is(FULL_SUBSIDY));
     }
 
     @Test
-    public void getMonthlyAmountTooYoung() {
+    public void tooYoung() {
         int allowance = paymentImpl.getMonthlyAmount("20190101-0000", income, studyPace, completionRatio);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
     @Test
-    public void getMonthlyAmountBadCompletionRatio() {
+    public void badCompletionRatio() {
         int allowance = paymentImpl.getMonthlyAmount(pnr, income, studyPace, 49);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
     @Test
-    public void getMonthlyAmountFulltimeStudyWithHighIncome() {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, PARTTIME_INCOME, 100, 100);
+    public void fulltimeStudyWithHighIncome() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, PARTTIME_INCOME, 100, completionRatio);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
     @Test
-    public void partTimeStudiesNoIncome() {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, 0, 99, 100);
+    public void partTimeStudies() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, 99, completionRatio);
         assertThat(allowance, is(HALF_SUBSIDY + HALF_LOAN));
     }
 
     @Test
-    public void fullTimeStudiesBadCompletionNoIncome() {
-        int allowance = paymentImpl.getMonthlyAmount(pnr, 0, 100, 49);
+    public void lowStudyRate() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, income, 49, completionRatio);
         assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
     }
 
+    @Test
+    public void highIncome() {
+        int allowance = paymentImpl.getMonthlyAmount(pnr, PARTTIME_INCOME + 1, studyPace, completionRatio);
+        assertThat(allowance, is(ZERO_SUBSIDY + ZERO_LOAN));
+    }
+
+
+    /* ================= Payment days ================= */
     @Test
     public void getNextPaymentDay() {
 
 
     }
-
 }
-/*
-
-        System.out.println("PaymentImplTest.getMonthlyAmount");
-        System.out.println("FULL_SUBSIDY = " + FULL_SUBSIDY);
-        System.out.printf("\n%s, %s, %s, %s", pnr, income, studyPace, completionRatio);
-
-        System.out.println("PaymentImplTest.getMonthlyAmountTooYoung");
-        System.out.printf("\n%s, %s, %s, %s", pnr, income, studyPace, completionRatio);
-
-        System.out.println("PaymentImplTest.getMonthlyAmountBadCompletionRatio");
-        System.out.printf("\n%s, %s, %s, %s", pnr, income, studyPace, completionRatio);*/

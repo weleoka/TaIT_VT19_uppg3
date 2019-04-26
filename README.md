@@ -2,19 +2,15 @@
 
 Bash scripts for linux are up to date with the latest libraries of JUnit and JaCoCo and all the rest.
 
-
 Windows batch scripts are updated but need testing! Please let me know if things look like they are working on windows as I dont have time to check my self.
-
 
 Linux just execute the whole thing with `./ct`, which is short for compile_and_test. Windows `ct.bat`.
 
+TODO: Update the windows .bat files for current build and testing requirements.
+TODO: Fix compile scripts to make test coverage reports on actual test classes optional.
 
-## Parameterized tests
-The trouble with using JUnit's built in parameterized test is that it requires the method returning the Collection object of parameters to be static, which in turn means that the CSVReader can't be instantiated.
+In the repository root is a file called 'PaymentImpl.class' and it is a compiled binary which contains errors for then "testing-the-tests". Replace the compiled binary in /bin with this file to try it out.
 
-The solution should be to use the helper library JUnitParams but when doing that the following ocurs due to an initial line problem in the CSv file. `java.lang.IllegalArgumentException: Cannot parse parameters. Did you use ',' or '|' as column separator? #Social Security Number;Income;Study pace;Completion ratio`
-
-The good summary of the JUnit4 and JUnitPArams discussion is at [this link](https://www.testwithspring.com/lesson/writing-parameterized-tests-with-junit-4/)
 
 ## Empty Unit tests
 Not counting empty unit tests towards overall overage. If the test method is empty then why should that count towards coverage in test coverage reports? They are actually not testing anything!
@@ -27,11 +23,23 @@ So far there is only one relatively satisfactory solution to this problem; if th
 
 
 ## Parameterized test class
-JUnit has the parameterized test where fields or constructor injection can be used to run tests using a data set. What is not clear is how individual items in the collection are cast/parsed to the required data types, although it does work!
+JUnit has the parameterized test where fields or constructor injection can be used to run tests using a data set. What is not clear is how individual items in the collection are cast/parsed to the required data types.
 
-There is a good helper library, that seems to then have been incorporated into JUnit5 called JUnitParams. It allows reading of parameters directly in to unit tests, and reducing boilerplate code for test classes by making it unnecessary to inject fields or constructor with params, instead annotating each method. It should also make it possible to have multiple test methods with different parameters withing the same class, whereas the JUnit4 is basically one method one class if it's parameterized.
+There is a good helper library, that seems to then have had ideas from it partially incorporated into JUnit5 called JUnitParams. It allows reading of parameters directly in to unit tests, and reducing boilerplate code for test classes by making it unnecessary to inject fields or constructor with params, instead annotating each method. It should also make it possible to have multiple test methods with different parameters withing the same class, whereas the JUnit4 is basically one method one class if it's parameterized.
 
-Again the question of how types are cast is not clear from JUnitParams. It's also hard to correctly skip an initial line in the CSV file, or have custom delimiters, for example.
+The trouble with using JUnit's built in parameterized test is that it requires the method returning the Collection object of parameters to be static, which in turn means that the CSVReader can't be instantiated.
+
+The solution should be to use the helper library JUnitParams but when doing that the following ocurs due to an initial line problem in the CSv file. `java.lang.IllegalArgumentException: Cannot parse parameters. Did you use ',' or '|' as column separator? #Social Security Number;Income;Study pace;Completion ratio`
+
+```
+@FileParameters("inputfiles/debug.csv")
+@FileParameters(classpath:inputfiles/debig.csv)`
+```
+
+The good summary of the JUnit4 and JUnitPArams discussion is at [this link](https://www.testwithspring.com/lesson/writing-parameterized-tests-with-junit-4/)
+
+When running from commandline and IDE the paths in the @FileParameters for JUnitParams get resolved differently. The two annotation methods most usable seem to be: 
+
 
 ## Exceptions in tests
 Testing the PaymentImpl class is different as the methods throw IOException.

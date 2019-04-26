@@ -14,8 +14,9 @@ org.junit.runner.JUnitCore \
 ltu.MainTest \
 ltu.CalendarImplTest \
 ltu.CalendarFactoryTest \
-ltu.PaymentImplTest \
-#ltu.PaymentImplJUnitParamsTest
+ltu.PaymentImplJUnitParamsTest
+#ltu.PaymentImplTest \
+
 
 # java -javaagent:./lib/org.jacoco.agent-0.7.7.jar -cp ./lib/org.junit4-4.3.1.jar:./bin org.junit.runner.JUnitCore
 
@@ -23,9 +24,8 @@ echo "Generating report..."
 java \
 -jar lib/jacococli.jar report jacoco.exec \
 --classfiles ./bin/test \
---sourcefiles ./src/main \
 --sourcefiles ./src/test \
+--sourcefiles ./src/main \
 --html ./jacocoreporthtml
 
 # java -jar ./lib/org.jacoco.examples-0.7.7.jar .
-#--sourcefiles "./src/test/ltu:./src/main/ltu"
