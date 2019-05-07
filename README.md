@@ -81,3 +81,43 @@ JUnit4+ has @Test annotation and expected element. e.g. @Test(expected = IOExcep
         [ID: 506] Student loans and subsidiary is paid on the last weekday (Monday to Friday) every month.
 
 Your task is to run the system under test and verify that these requirements are correctly implemented. The implementation you have been given uses the current month to calculate payment date, but you have been asked to test the system for the spring-term of 2016 (2016-01-01 to 2016-06-30). 
+
+
+
+
+## CHEATER Sheet
+ Below you will find the errors that were introduced in the code (`PaymentImpl.class` found in repo root). The error may have symptoms in several requirement IDs so if your ID does not match the one in the list it may simply be that you caught the error as part of another requirement. This is one of the reasons why it may sometimes be difficult to find the actual cause of an error, even if unit-testing is performed.
+
+The following bugs were introduced in the production code:  
+
+```java
+[ID 101] "age <= 20" instead of "age < 20" for subsidy
+[ID 103] "age > 47" instead of "age >= 47" for loan
+[ID 302] HALF_SUBSIDY instead of ZERO_SUBSIDY for part time students with too high income
+[ID 503 (could also be caught in 202)] student50loan=4564 instead of student50loan=3564
+[ID 506} Maximum day of February is always 28
+
+[ID 102 || ID 203 || ID 502]
+// Special case for debugging, located in getSubsidy
+// Error: debug flag is true in production code
+
+if (debug && studyRate == 100 && age > 56 && completionRatio >= 50 && income <= FULLTIME_INCOME) 
+{
+    return Integer.MAX_VALUE;
+}
+```
+
+It is not possible to get 100% test coverage without changing the code due to the IOException that is supposed to be thrown by the load function. The function takes an InputStream that is created by the StringReader function that takes a String argument. It is not possible to get this exception to throw without modifying the code.  
+
+[ID 506] Can be unit-tested by using the fact that the Calendar is instantiated using a CalendarFactory. By utilising code/class injection it is possible to create a new calendar class that can return another date than current time.
+
+
+Additional error in the requirements specification:  
+
+ID203 and ID501 says that a full time student should receive 100% subsidiary, 7088 SEK / month.
+While ID202 says that a student studying less that full time is entitled to 50% subsidiary.
+2816/2 = 1408 (1) but ID504 says that a student whose study pace is less than 100% should receive 1396 SEK / month. The requirement ID505 says that a student who is entitled to student loan should always get the full amount.  
+
+But a full time student shall receive 7088 SEK / month says ID501, and ID503 says that a student
+whose study pace is less than 100% should only receive 3564 SEK / month. ID503 and ID505's
+requirements contradict each other.
